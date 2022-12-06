@@ -1,3 +1,4 @@
+import math
 from math import sqrt
 
 class Calculator:
@@ -15,8 +16,8 @@ class Calculator:
             while '(' in count and ')' in count:
                 count = self.parentheses(count)
                 count = count.replace('  ', ' ')
-            while '^' in count or '√' in count:
-                count = self.exponents_and_sqrts(count)
+            while '^' in count or '√' in count or 'log' in count:
+                count = self.exponents_sqrts_and_log(count)
             while '*' in count or '/' in count:
                 count = self.multiplication_and_division(count)
             while '+' in count or '-' in count:
@@ -49,7 +50,7 @@ class Calculator:
         return count
 
 
-    def exponents_and_sqrts(self, count):
+    def exponents_sqrts_and_log(self, count):
         # E in PEMDAS
         # Parses exponents and square roots into float
         components = count.split(' ')
@@ -65,6 +66,10 @@ class Calculator:
                 un_operated = '√ ' + components[i + 1]
                 operated = str( sqrt(float(components[i + 1])))
                 # replaces unoperated version with operated version in count
+                count = count.replace(un_operated, operated)
+            elif 'log' in components[i]:
+                un_operated = 'log ' + components[i + 1] + ' ' + components[i + 2]
+                operated = str( math.log(float(components[i + 2]), float(components[i + 1])))
                 count = count.replace(un_operated, operated)
         return count
 
@@ -113,7 +118,7 @@ if __name__ == "__main__":
     calc = Calculator()
     # res = calc.parentheses('4 + ( 2 + 3 ) + 4')
     #res = calc.exponents_and_sqrts('√ 4')
-    res = calc.PEMDAS('12 + 3')
+    res = calc.PEMDAS('log 2 3')
     print(f'<{res}>')
     print('√')
     print('÷')
