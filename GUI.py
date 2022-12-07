@@ -147,8 +147,8 @@ class GUI(Ui_MainWindow):
         distance = self.find_distance(underscore_index)
         if not underscore_index - distance < 0:
             self.count = self.count[:underscore_index - distance] + self.count[underscore_index:]
-        #replace = self.find_replace()
-        #self.count = self.count.replace(replace, '')
+        replace = self.find_replace()
+        self.count = self.count.replace(replace, '')
         self.equals.setText(self.count.replace('  ', ' '))
         self.equals.adjustSize()
 
@@ -173,8 +173,8 @@ class GUI(Ui_MainWindow):
             distance = 6
         elif self.count[underscore_index - 7: underscore_index] == '</span>':
             distance = 7
-        elif ' ' in self.count[underscore_index - 1]:
-            distance = 2
+        #elif ' ' in self.count[underscore_index - 1]:
+            #distance = 2
         else:
             distance = 1
         return distance
