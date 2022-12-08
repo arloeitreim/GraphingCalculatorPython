@@ -66,40 +66,15 @@ class GUI(Ui_MainWindow):
 
 
     def arrows(self, direction):
+        distance:int
         direction_int: int
-        distance: int
-        distance = 1
         underscore_index = self.count.index('_')
         self.count = self.count.replace('_', '')
-        #if self.count[underscore_index - 5: underscore_index] == ('<sup>' or '<sub'):
-            #self.count = self.count[:underscore_index - 5] + self.count[underscore_index]
-        #elif self.count[underscore_index - 6: underscore_index] == ('</sup>' or '</sub'):
-            #self.count = self.count[:underscore_index - 6] + self.count[underscore_index]
+        distance = self.find_distance(underscore_index, direction)
         if direction == 'left':
             direction_int = 1
-            if self.count[underscore_index - 3: underscore_index] == 'log':
-                print(self.count[underscore_index - 3: underscore_index])
-                distance = 3
-            elif (lambda x: (x == '<sup>') or (x == '<sub>'))(self.count[underscore_index - 5: underscore_index]):
-            #if self.count[underscore_index - 5: underscore_index] == '<sup>' or self.count[underscore_index - 5: underscore_index] =='<sub>':
-                distance = 5
-            elif (lambda x: (x == '</sup>') or (x == '</sub>'))(self.count[underscore_index - 6: underscore_index]):
-            #if self.count[underscore_index - 6: underscore_index] == ('</sup>' or '</sub>'):
-                distance = 6
-            #print(self.count[underscore_index - 1 * direction_int])
-        elif direction == 'right':
+        else:
             direction_int = -1
-            #print(self.count[underscore_index:underscore_index + 5])
-
-            if self.count[underscore_index: underscore_index + 3] == 'log':
-                #print(self.count[underscore_index: underscore_index + 3])
-                distance = 3
-            elif (lambda x: (x == '<sup>') or (x == '<sub>'))(self.count[underscore_index: underscore_index + 5]):
-            #if self.count[underscore_index: underscore_index + 5] == ('<sub>' or '<sup>'):
-                distance = 5
-            elif (lambda x: (x == '</sup>') or (x == '</sub>'))(self.count[underscore_index: underscore_index + 6]):
-            #if self.count[underscore_index: underscore_index + 6] == ('</sup>' or '</sub>'):
-                distance = 6
         self.count = self.count[:underscore_index - distance*direction_int] + '_' + self.count[underscore_index - distance*direction_int:]
         self.equals.setText(self.count.replace('  ', ' '))
         self.equals.adjustSize()
@@ -109,6 +84,7 @@ class GUI(Ui_MainWindow):
     def equals_method(self):
         self.translate_for_calculator()
         calc = Calculator()
+        print(self.count)
         self.count = calc.PEMDAS(self.count) + '_'
         #self.count = self.count.replace("")
         self.previous = self.count
@@ -119,12 +95,12 @@ class GUI(Ui_MainWindow):
 
     def translate_for_calculator(self):
         self.count = self.count.replace('_', '')
-        self.count = self.count.replace('<sub>', '(')
+        self.count = self.count.replace('<sub>', ' (')
         self.count = self.count.replace('<sup>', '^ (')
-        self.count = self.count.replace('<span>', '(')
-        self.count = self.count.replace('</sub>', ')')
-        self.count = self.count.replace('</sup>', ')')
-        self.count = self.count.replace('</span>', ')')
+        self.count = self.count.replace('<span>', ' (')
+        self.count = self.count.replace('</sub>', ') ')
+        self.count = self.count.replace('</sup>', ') ')
+        self.count = self.count.replace('</span>', ') ')
 
     def add_log(self):
         self.count = self.count.replace("_", ' log <sub> _ </sub>')
@@ -163,22 +139,36 @@ class GUI(Ui_MainWindow):
         return replace
 
 
-    def find_distance(self, underscore_index):
+    def find_distance(self, underscore_index, direction='left'):
         distance: int
-        if self.count[underscore_index - 3: underscore_index] == 'log':
+        distance_3: str
+        distance_5: str
+        distance_6: str
+        distance_7: str
+
+        if direction == 'left':
+            distance_3 = self.count[underscore_index - 3: underscore_index]
+            distance_5 = self.count[underscore_index - 5: underscore_index]
+            distance_6 = self.count[underscore_index - 6: underscore_index]
+            distance_7 = self.count[underscore_index - 7: underscore_index]
+
+        elif direction == 'right':
+            distance_3 = self.count[underscore_index: underscore_index + 3]
+            distance_5 = self.count[underscore_index: underscore_index + 5]
+            distance_6 = self.count[underscore_index: underscore_index + 6]
+            distance_7 = self.count[underscore_index: underscore_index + 7]
+
+        if distance_3 == 'log':
             distance = 3
-        elif (lambda x: x == '<sup>' or x == '<sub>')(self.count[underscore_index - 5: underscore_index]):
+        elif (lambda x: x == '<sup>' or x == '<sub>')(distance_5):
             distance = 5
-        elif (lambda x: x == '</sup>' or x == '</sub>' or x == '<span>')(self.count[underscore_index - 6: underscore_index]):
+        elif (lambda x: x == '</sup>' or x == '</sub>' or x == '<span>')(distance_6):
             distance = 6
-        elif self.count[underscore_index - 7: underscore_index] == '</span>':
+        elif distance_7 == '</span>':
             distance = 7
-        #elif ' ' in self.count[underscore_index - 1]:
-            #distance = 2
         else:
             distance = 1
         return distance
-
 
 
     # text: text that will be added to count and displayed in the GUI
