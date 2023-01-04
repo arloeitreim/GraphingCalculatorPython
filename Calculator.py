@@ -13,20 +13,35 @@ class Calculator:
         # Order of Operations
         # returns result of count
         try:
+            count = self.translate(count)
             while '(' in count and ')' in count:
                 count = self.parentheses(count)
                 count = count.replace('  ', ' ')
+                print('parentheses: ' + count)
+
             while '^' in count or '√' in count or 'log' in count:
                 count = self.exponents_sqrts_and_log(count)
-            while '*' in count or '/' in count:
+                print('exponents: ' + count)
+
+            while '*' in count or '÷' in count:
                 count = self.multiplication_and_division(count)
-            while '+' in count or '-' in count:
+                print('multiplication and division: ' + count)
+
+            while ' + ' in count or ' - ' in count:
                 count = self.addition_and_subtraction(count)
-            if float(count).is_integer():
+                print('addition and subtraction: ' + count)
+
+            # Checks if count contains e or j, as that would return an error when converted to float
+            # Converts count to an integer if the value in the decimal place is zero
+            if not ('e' in count or 'j' in count) and float(count).is_integer():
                 count = str(int(float(count)))
+                print('int: ' + count)
             return count
-        except ValueError:
-            return "Error"
+        except OverflowError and ValueError:
+            return 'Error'
+        except Exception as e:
+            return str(e)
+
 
     def parentheses(self, count: str):
         # P in PEMDAS
