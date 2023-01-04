@@ -145,15 +145,19 @@ class Calculator:
         components = count.split(' ')
         un_operated: float
         operated: float
-        for i in range(len(components)):
-            if '*' in components[i]:
-                un_operated = components[i - 1] + ' * ' + components[i + 1]
-                operated = str(float(components[i - 1]) * float(components[i + 1]))
-                count = count.replace(un_operated, operated)
-            elif "/" in components[i]:
-                un_operated = components[i - 1] + ' / ' + components[i + 1]
-                operated = str(float(components[i - 1]) / float(components[i + 1]))
-                count = count.replace(un_operated, operated)
+        while '*' in count or '÷' in count:
+            components = count.split(' ')
+            for i in range(len(components)):
+                if '*' in components[i]:
+                    un_operated = components[i - 1] + ' * ' + components[i + 1]
+                    operated = str(float(components[i - 1]) * float(components[i + 1]))
+                    count = count.replace(un_operated, operated)
+                    break
+                elif "÷" in components[i]:
+                    un_operated = components[i - 1] + ' ÷ ' + components[i + 1]
+                    operated = str(float(components[i - 1]) / float(components[i + 1]))
+                    count = count.replace(un_operated, operated)
+                    break
         return count
 
 
@@ -163,16 +167,27 @@ class Calculator:
         components = count.split(' ')
         un_operated: float
         operated: float
-        for i in range(len(components)):
-            if '+' in components[i]:
-                un_operated = components[i - 1] + ' + ' + components[i + 1]
-                operated = str(float(components[i - 1]) + float(components[i + 1]))
-                count = count.replace(un_operated, operated)
-            elif "-" in components[i]:
-                un_operated = components[i - 1] + ' - ' + components[i + 1]
-                operated = str(float(components[i - 1]) - float(components[i + 1]))
-                count = count.replace(un_operated, operated)
+        while ' + ' in count or ' - ' in count:
+            components = count.split(' ')
+            for i in range(len(components)):
+                if '+' in components[i]:
+                    un_operated = components[i - 1] + ' + ' + components[i + 1]
+                    print('unoperated: ' + un_operated)
+                    operated = str(float(components[i - 1]) + float(components[i + 1]))
+                    print('operated: ' + operated)
+                    count = count.replace(un_operated, operated)
+                    break
+                elif "-" == components[i]:
+                    print(True)
+                    un_operated = components[i - 1] + ' - ' + components[i + 1]
+                    print(un_operated)
+                    operated = str(float(components[i - 1]) - float(components[i + 1]))
+                    print(operated)
+                    count = count.replace(un_operated, operated)
+                    components = count.split(' ')
+                    break
         return count
+
 
     def getCount(self):
         # Returns count instance
