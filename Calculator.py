@@ -42,6 +42,47 @@ class Calculator:
         except Exception as e:
             return str(e)
 
+        
+    def translate(self, count):
+        count = count.replace('_', '')
+        components = count.split(' ')
+        # for use if components[i] is "("
+        operator_list = ['+', '-', '÷', '*', '^', '√', '', ' ', '  ', 'log' '<sub>', '</sub>', '<sup>', '</sup>', '<span>', '</span>', '(']
+        # for use if components[i] is "("
+        operator_list2 = ['+', '-', '÷', '*', '^', '√', '', ' ', '  ', 'log' '<sub>', '</sub>', '<sup>', '</sup>','<span>', '</span>', ')']
+        print(components)
+        count = count.replace('<sub>', ' ( ')
+        count = count.replace('<sup>', '^ ( ')
+        count = count.replace('<span>', ' ( ')
+        count = count.replace('</sub>', ' ) ')
+        count = count.replace('</sup>', ' ) ')
+        count = count.replace('</span>', ' ) ')
+        count = count.replace('π', str(math.pi))
+        count = count.replace('  ', ' ')
+        for i in range(len(components)):
+            if not i + 1 == len(components):
+                if components[i] == ')' and not components[i + 1] in operator_list2:
+                    count = count.replace(' ) ' + components[i + 1], ' )' + ' * ' + components[i + 1])
+            if not i == 0:
+                if components[i] == '(' and not components[i-1] in operator_list:
+                    count = count.replace(components[i-1] + ' ( ', components[i-1] + ' * ' + '( ')
+        for i in range(len(components)):
+            if '√' in components[i] and not components[i][0] == '√':
+                split_components = components[i].split('√')
+                count = count.replace(components[i], split_components[0] + ' * √ ' + split_components[1])
+            elif 'π' in components[i] and not components[i][0] == 'π':
+                split_components = components[i].split('π')
+                count = count.replace(components[i], split_components[0] + ' * π ' + split_components[1])
+            elif 'x' in components[i] and not components[i][0] == 'x':
+                split_components = components[i].split('x')
+                count = count.replace(components[i], split_components[0] + ' * x ' + split_components[1])
+            elif 'log' in components[i] and components[i] == '-log':
+                count = count.replace(components[i], '-1 * log')
+            elif 'log' in components[i] and not components[i][:3] == 'log':
+                split_components = components[i].split('log')
+                count = count.replace(components[i], split_components[0] + ' * log ' + split_components[1])
+        print(count)
+        return count
 
     def parentheses(self, count: str):
         # P in PEMDAS
