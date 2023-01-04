@@ -112,21 +112,30 @@ class Calculator:
         components = count.split(' ')
         un_operated: float
         operated: float
-        for i in range(len(components)):
-            if '^' in components[i]:
-                un_operated = components[i - 1] + ' ^ ' + components[i + 1]
-                operated = str(float(components[i - 1]) ** float(components[i + 1]))
-                # replaces unoperated version with operated version in count
-                count = count.replace(un_operated, operated)
-            elif "√" in components[i]:
-                un_operated = '√ ' + components[i + 1]
-                operated = str( sqrt(float(components[i + 1])))
-                # replaces unoperated version with operated version in count
-                count = count.replace(un_operated, operated)
-            elif 'log' in components[i]:
-                un_operated = 'log ' + components[i + 1] + ' ' + components[i + 2]
-                operated = str( math.log(float(components[i + 2]), float(components[i + 1])))
-                count = count.replace(un_operated, operated)
+        while '^' in count or '√' in count or 'log' in count:
+            components = count.split(' ')
+            for i in range(len(components)):
+                if '^' in components[i]:
+                    un_operated = components[i - 1] + ' ^ ' + components[i + 1]
+                    operated = str(float(components[i - 1]) ** float(components[i + 1]))
+                    # replaces unoperated version with operated version in count
+                    count = count.replace(un_operated, operated)
+                    break
+                elif "√" in components[i]:
+                    if float(components[i + 1]) < 0:
+                        raise Exception('imaginary')
+                    un_operated = '√ ' + components[i + 1]
+                    operated = str( sqrt(float(components[i + 1])))
+                    # replaces unoperated version with operated version in count
+                    count = count.replace(un_operated, operated)
+                    break
+                elif 'log' in components[i]:
+                    if float(components[i + 1]) <= 0:
+                        raise Exception('imaginary')
+                    un_operated = 'log ' + components[i + 1] + ' ' + components[i + 2]
+                    operated = str( math.log(float(components[i + 2]), float(components[i + 1])))
+                    count = count.replace(un_operated, operated)
+                    break
         return count
 
 
