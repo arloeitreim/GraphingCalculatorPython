@@ -6,7 +6,6 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import QFont
 import sys
-import PyQt5
 from math import isinf
 import logging
 
@@ -48,8 +47,10 @@ class Graph(QWidget):
         qp = QPainter()
         qp.begin(self)
         self.draw_graph(qp)
-        for i in self.function:
-            self.draw_function(qp, i)
+        colors = [Qt.red, Qt.blue, Qt.green, Qt.cyan, Qt.darkMagenta, Qt.yellow, Qt.magenta, Qt.darkRed]
+        for i, v in enumerate(self.function):
+            self.draw_function(qp, v, colors[i])
+
         qp.end()
 
     def draw_graph(self, qp):
@@ -151,13 +152,13 @@ class Graph(QWidget):
             for y in range(0, 1503, self.zoom):
                 qp.drawLine(0, y, 1500, y)
 
-    def draw_function(self, qp, function):
+    def draw_function(self, qp, function, color):
         y_float: float
         y: int
         continuous = True
         counter = -750
         calc = Calculator()
-        pen = QPen(Qt.red, 6, Qt.SolidLine, Qt.RoundCap)
+        pen = QPen(color, 7, Qt.SolidLine, Qt.RoundCap)
         pen.setJoinStyle(Qt.RoundJoin)
         pen.setCosmetic(True)
         qp.setPen(pen)
@@ -186,7 +187,6 @@ class Graph(QWidget):
 
                 y_float = calc.PEMDAS(function.replace('x', ' ( ' + str(x) + ' ) '))
                 self.check_complex(y_float)
-                # self.check_infinity(y_float)
                 y_float = float(y_float)
                 print("y: " + str(y_float))
                 y = int(y_float * -1 * self.zoom + 750)
@@ -217,7 +217,7 @@ class Graph(QWidget):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     app = QApplication(sys.argv)
-    functions = ['√ x']
+    functions = ['√ x', 'x ^ 2', 'x + 2', '2 ^ x']
     widget = Graph(functions, 0)
     widget.show()
     sys.exit(app.exec_())
