@@ -1,27 +1,36 @@
-import logging
 from Calculator import Calculator
 from PyQt5.QtGui import QPainter, QColor, QPen
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QPointF, QLineF
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import QFont
 import sys
+import PyQt5
 from math import isinf
 import logging
 
 
+if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
+    PyQt5.QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+
+if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
+    PyQt5.QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
+
+
 class Graph(QWidget):
-    def __init__(self, function, zoom):
+    def __init__(self, functions, zoom):
         super().__init__()
+
         self.minor_grid = True
         self.zoom = self.__get_zoom(zoom)
-        if type(function) is str:
-            print('True')
-            self.function = [function]
-            print(self.function)
+        self.scaleFactor = 0.1
+
+        if type(functions) is str:
+            self.functions = [functions]
         else:
-            self.function = function
-        self.setGeometry(500, 100, 1500, 1500)
+            self.functions = functions
+
+        self.setGeometry(500, 100, 500, 500)
         self.setWindowTitle("Graph")
 
     def __get_zoom(self, zoom):
@@ -47,9 +56,10 @@ class Graph(QWidget):
         qp = QPainter()
         qp.begin(self)
         self.draw_graph(qp)
+        qp.scale(self.scaleFactor, self.scaleFactor)
         colors = [Qt.red, Qt.blue, Qt.green, Qt.cyan, Qt.darkMagenta, Qt.yellow, Qt.magenta, Qt.darkRed]
-        for i, v in enumerate(self.function):
-            self.draw_function(qp, v, colors[i])
+        for function, color in zip(self.functions, colors):
+            self.draw_function(qp, function, color)
 
         qp.end()
 
@@ -70,43 +80,34 @@ class Graph(QWidget):
         axes = QColor(0, 0, 0, 150)
         axes_pen = QPen(axes, 2, Qt.SolidLine)
         qp.setPen(axes_pen)
-        qp.drawLine(0, 750, 1500, 750)
-        qp.drawLine(750, 0, 750, 1500)
+        qp.drawLine(0, 250, 500, 250)
+        qp.drawLine(250, 0, 250, 500)
 
         font = QFont()
         font.setBold(True)
         font.setFixedPitch(True)
         font.setPointSize(self.__get_point_size())
         qp.setFont(font)
-        # draws the last labels on the x-axis and y-axis
-        #spacing = self.__get_spacing(-750)
-        #qp.drawText(1, 780, str(int(-750 / self.zoom)))
-        #qp.drawText(729 - spacing, 1485, str(int(-750 / self.zoom)))
-
-        # draws the first labels on the x-axis and y-axis
-        #spacing = self.__get_spacing(750)
-        #qp.drawText(1470 - spacing, 780, str(int(750 / self.zoom)))
-        #qp.drawText(729 - spacing, 10, str(int(750 / self.zoom)))
 
         # draws the zero label for both the x-axis and y-axis
-        qp.drawText(730, 775, '0')
+        qp.drawText(239, 260, '0')
 
         # Draws the x-coordinate labels every major line
-        for x in range(-750 + zoom * 5, 747, zoom * 5):
+        for x in range(-250 + zoom * 5, 249, zoom * 5):
             x_label = int(x / self.zoom)
             horizontal_spacing = self.__get_horizontal_spacing(x_label)
-            vertical_spacing = 10 - self.__get_point_size()
+            vertical_spacing = 5 - self.__get_point_size()
             x_label = str(x_label)
             if not x == 0:
-                qp.drawText(x + 760 - horizontal_spacing, 780 - vertical_spacing , x_label)
+                qp.drawText(x + 252 - horizontal_spacing, 260 - vertical_spacing, x_label)
 
         # Draws the y-coordinate labels every major line
-        for y in range(-750 + zoom * 5, 750, zoom * 5):
+        for y in range(-250 + zoom * 5, 250, zoom * 5):
             y_label = int(-y / self.zoom)
             horizontal_spacing = self.__get_horizontal_spacing(y_label)
             y_label = str(y_label)
             if y != 0:
-                qp.drawText(745 - horizontal_spacing, y + 755, y_label)
+                qp.drawText(245 - horizontal_spacing, y + 253, y_label)
 
     def __get_point_size(self):
         if self.zoom == 50:
@@ -114,93 +115,122 @@ class Graph(QWidget):
         elif self.zoom == 25:
             return 7
         elif self.zoom == 10:
-            return 5
+            return 6
         elif self.zoom == 5:
-            return 4
+            return 5
         elif self.zoom == 1:
-            return 3
+            return 4
 
     def __get_horizontal_spacing(self, coordinate):
         spacing: int
         length = len(str(coordinate))
-        spacing = self.__get_point_size()*2 * length
+        spacing = self.__get_point_size() * 0.6 * length
         return spacing
 
     def draw_grid(self, qp):
+        if self.zoom >= 25:
+            zoom = self.zoom
+        else:
+            zoom = 10
         major_grid = QColor(0, 0, 0, 50)
         minor_grid = QColor(0, 0, 0, 20)
         major_grid_pen = QPen(major_grid, 1, Qt.SolidLine)
         minor_grid_pen = QPen(minor_grid, 1, Qt.SolidLine)
 
         qp.setPen(major_grid_pen)
-        # Draws a major horizontal lines every 5 minor lines
-        for x in range(0, 1503, self.zoom * 5):
-            qp.drawLine(x, 0, x, 1500)
+        # Draws a major horizontal lines every few minor lines
+        for x in range(0, 501, zoom * 5):
+            qp.drawLine(x, 0, x, 500)
 
-        # Draws a major horizontal lines every 5 minor lines
-        for y in range(0, 1503, self.zoom * 5):
-            qp.drawLine(0, y, 1500, y)
+        # Draws a major horizontal lines every few minor lines
+        for y in range(0, 501, zoom * 5):
+            qp.drawLine(0, y, 500, y)
 
         # Only draws the minor lines if the zoom level is below 2
         if self.minor_grid:
             qp.setPen(minor_grid_pen)
             # Draws minor horizontal lines in increments of the zoom instance variable
-            for x in range(0, 1503, self.zoom):
-                qp.drawLine(x, 0, x, 1500)
+            for x in range(0, 501, self.zoom):
+                qp.drawLine(x, 0, x, 500)
 
             # Draws minor horizontal lines in increments of the zoom instance variable
-            for y in range(0, 1503, self.zoom):
-                qp.drawLine(0, y, 1500, y)
+            for y in range(0, 501, self.zoom):
+                qp.drawLine(0, y, 500, y)
 
     def draw_function(self, qp, function, color):
-        y_float: float
-        y: int
-        continuous = True
-        counter = -750
-        calc = Calculator()
         pen = QPen(color, 7, Qt.SolidLine, Qt.RoundCap)
         pen.setJoinStyle(Qt.RoundJoin)
         pen.setCosmetic(True)
         qp.setPen(pen)
         qp.setRenderHint(QPainter.SmoothPixmapTransform, True)
         qp.setRenderHint(QPainter.Antialiasing, True)
-        for x in range(-750, 1503):
-            counter += 1
-            try:
-                x = float(x) / self.zoom
-                print('x: ' + str(x))
-                y_float = float(calc.PEMDAS(function.replace('x', ' ( ' + str(x) + ' ) ')))
-                self.check_complex(y_float)
-                # self.check_infinity(y_float)
-                y = int(y_float * -1 * self.zoom + 750)
-                point1 = [x * self.zoom + 750, y]
-                # qp.drawPoint(*point1)
-                break
-            except ValueError:
-                print('exception')
-                pass
 
-        for x in range(counter, 1503):
-            try:
-                x = float(x) / self.zoom
-                print('x: ' + str(x))
+        continuous = False
+        point1: QPointF
+        point2: QPointF
+        lines: list = []
+        line: QLineF
+        calculator = Calculator()
 
-                y_float = calc.PEMDAS(function.replace('x', ' ( ' + str(x) + ' ) '))
-                self.check_complex(y_float)
-                y_float = float(y_float)
-                print("y: " + str(y_float))
-                y = int(y_float * -1 * self.zoom + 750)
-                point2 = [x * self.zoom + 750, y]
+        getPoint = self.getPoint(function)
+        start = int(-250 / self.scaleFactor)
+        end = int(250 / self.scaleFactor)
+
+        for x in range(start, end):
+            try:
+                point2 = getPoint(x)
+
                 if not continuous:
+                    logging.info("check 5")
                     point1 = point2
-                    print(point1)
-                    qp.drawPoint(*point1)
+                    qp.drawPoint(point1)
+
                 elif continuous:
-                    qp.drawLine(*point1, *point2)
+                    line = QLineF(point1, point2)
+                    lines.append(line)
                     point1 = point2
+
+                # if point1's x value exceeds the limits of the graph, break out of the for loop
                 continuous = True
-            except:
+
+            except ValueError:
                 continuous = False
+        qp.drawLines(lines)
+
+    def getPoint(self, function):
+        calculator = Calculator()
+
+        def getPointInner(x):
+            y: str
+
+            # adjusts x for the scale and zoom of the graph
+            x = (x * self.scaleFactor
+                 / self.zoom)
+
+            # Calculates y-value
+            y = float(
+                calculator.PEMDAS
+                (function.replace('x', ' ( ' + str(x) + ' ) ')))
+
+            # checks if y is a complex number
+            self.check_complex(y)
+
+            # map y on to the graph
+            y = int(y / self.scaleFactor
+                    * -1
+                    * self.zoom
+                    + 250 / self.scaleFactor)
+
+            # map x onto the graph
+            x = (x / self.scaleFactor
+                 * self.zoom
+                 + int(250 / self.scaleFactor))
+
+            point = QPointF(x, y)
+
+            return point
+
+        return getPointInner
 
     def check_complex(self, y_float):
         if 'j' in str(y_float):
@@ -215,9 +245,9 @@ class Graph(QWidget):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
+    #logging.basicConfig(level=logging.INFO)
     app = QApplication(sys.argv)
-    functions = ['√ x', 'x ^ 2', 'x + 2', '2 ^ x']
-    widget = Graph(functions, 0)
+    functions = ['x ^ x']
+    widget = Graph(functions, 1)
     widget.show()
     sys.exit(app.exec_())
