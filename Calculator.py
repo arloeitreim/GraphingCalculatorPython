@@ -1,4 +1,6 @@
 import math
+import faulthandler
+import logging
 from math import sqrt
 
 class Calculator:
@@ -17,25 +19,25 @@ class Calculator:
             while '(' in count and ')' in count:
                 count = self.parentheses(count)
                 count = count.replace('  ', ' ')
-                print('parentheses: ' + count)
+                logging.info('parentheses: ' + count)
 
             while '^' in count or '√' in count or 'log' in count:
                 count = self.exponents_sqrts_and_log(count)
-                print('exponents: ' + count)
+                logging.info('exponents: ' + count)
 
             while '*' in count or '÷' in count:
                 count = self.multiplication_and_division(count)
-                print('multiplication and division: ' + count)
+                logging.info('multiplication and division: ' + count)
 
             while ' + ' in count or ' - ' in count:
                 count = self.addition_and_subtraction(count)
-                print('addition and subtraction: ' + count)
+                logging.info('addition and subtraction: ' + count)
 
             # Checks if count contains e or j, as that would return an error when converted to float
             # Converts count to an integer if the value in the decimal place is zero
             if not ('e' in count or 'j' in count) and float(count).is_integer():
                 count = str(int(float(count)))
-                print('int: ' + count)
+                logging.info('int: ' + count)
             return count
         except OverflowError and ValueError:
             return 'Error'
@@ -50,7 +52,7 @@ class Calculator:
         operator_list = ['+', '-', '÷', '*', '^', '√', '', ' ', '  ', 'log' '<sub>', '</sub>', '<sup>', '</sup>', '<span>', '</span>', '(']
         # for use if components[i] is "("
         operator_list2 = ['+', '-', '÷', '*', '^', '√', '', ' ', '  ', 'log' '<sub>', '</sub>', '<sup>', '</sup>','<span>', '</span>', ')']
-        print(components)
+        logging.info(components)
         count = count.replace('<sub>', ' ( ')
         count = count.replace('<sup>', '^ ( ')
         count = count.replace('<span>', ' ( ')
@@ -81,20 +83,20 @@ class Calculator:
             elif 'log' in components[i] and not components[i][:3] == 'log':
                 split_components = components[i].split('log')
                 count = count.replace(components[i], split_components[0] + ' * log ' + split_components[1])
-        print(count)
+        logging.info(count)
         return count
 
     def parentheses(self, count: str):
         # P in PEMDAS
         # Parses operations inside of parentheses
 
-        # indice of count before the closest close parenthisis
-        before_close_parenth = count[:count.index(')')]
+        # indice of count before the closest closed parenthisis
+        before_closed_parenth = count[:count.index(')')]
 
-        # last open parenthisis before the first close parenthisis
-        last_open_parenth = before_close_parenth.rfind('(')
+        # last open parenthisis before the first closed parenthisis
+        last_open_parenth = before_closed_parenth.rfind('(')
 
-        # indice of count between the last open parenthesis and first close parenthesis
+        # indice of count between the last open parenthesis and first closed parenthesis
         # includes parentheses
         subCount = count[last_open_parenth : count.index(')') + 1]
 
@@ -105,10 +107,10 @@ class Calculator:
         count = count.replace(subCount, replacement)
         return count
 
-
+    
     def exponents_sqrts_and_log(self, count):
         # E in PEMDAS
-        # Parses exponents and square roots into float
+        # Parses exponents, logararithms, and square roots into float
         components = count.split(' ')
         un_operated: float
         operated: float
@@ -147,13 +149,14 @@ class Calculator:
         operated: float
         while '*' in count or '÷' in count:
             components = count.split(' ')
-            for i in range(len(components)):
-                if '*' in components[i]:
+            for i, component in enumerate(components):
+
+                if '*' is component:
                     un_operated = components[i - 1] + ' * ' + components[i + 1]
                     operated = str(float(components[i - 1]) * float(components[i + 1]))
                     count = count.replace(un_operated, operated)
                     break
-                elif "÷" in components[i]:
+                elif "÷" is component:
                     un_operated = components[i - 1] + ' ÷ ' + components[i + 1]
                     operated = str(float(components[i - 1]) / float(components[i + 1]))
                     count = count.replace(un_operated, operated)
@@ -165,24 +168,25 @@ class Calculator:
         # A and S in PEMDAS
         # Parses addition and subtraction operations into float
         components = count.split(' ')
+        logging.info(components)
         un_operated: float
         operated: float
         while ' + ' in count or ' - ' in count:
             components = count.split(' ')
-            for i in range(len(components)):
-                if '+' in components[i]:
+            for i, component in enumerate(components):
+                if '+' is component:
                     un_operated = components[i - 1] + ' + ' + components[i + 1]
-                    print('unoperated: ' + un_operated)
+                    logging.info('unoperated: ' + un_operated)
                     operated = str(float(components[i - 1]) + float(components[i + 1]))
-                    print('operated: ' + operated)
+                    logging.info('operated: ' + operated)
                     count = count.replace(un_operated, operated)
                     break
-                elif "-" == components[i]:
-                    print(True)
+                elif "-" is component:
+                    logging.info(True)
                     un_operated = components[i - 1] + ' - ' + components[i + 1]
-                    print(un_operated)
+                    logging.info(un_operated)
                     operated = str(float(components[i - 1]) - float(components[i + 1]))
-                    print(operated)
+                    logging.info(operated)
                     count = count.replace(un_operated, operated)
                     components = count.split(' ')
                     break
@@ -195,10 +199,15 @@ class Calculator:
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO  )
     calc = Calculator()
     # res = calc.parentheses('4 + ( 2 + 3 ) + 4')
     #res = calc.exponents_and_sqrts('√ 4')
-    res = calc.PEMDAS('log 2 3')
+    #res = calc.PEMDAS('-8 + 4 - 2 * 4')
+    #res = calc.PEMDAS('1 ÷ ( ( 0.0 ) ^ ( 2 * ( 0.0 ) ) ) ')
+    res = calc.PEMDAS('-5.05 ^ -5.05')
+    #res = calc.PEMDAS('-2 <sup>3_</sup> + -2 <sup>2</sup> + -2 + 3')
+    #res = calc.translate('2 + 2√4')
     print(f'<{res}>')
-    print('√')
-    print('÷')
+    #logging.info('√')
+    #logging.info('÷')
