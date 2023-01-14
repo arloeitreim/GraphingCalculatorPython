@@ -1,8 +1,14 @@
+import math
 from QtDesignerCode import Ui_MainWindow
 import PyQt5
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
 from PyQt5.QtWidgets import QWidget
 from Calculator import Calculator
+from PyQt5.QtWidgets import QApplication, QWidget
+from PyQt5.QtGui import QPainter, QPen
+from PyQt5.QtCore import Qt
+import sys
+from Graph import Graph
 
 # converting .ui to .py: pyuic5: pyuic5 -x QtDesignerCode.ui -o QtDesignerCode.py
 # opening designer: pyqt5-tools designer
@@ -26,6 +32,8 @@ class GUI(Ui_MainWindow):
 
         self.count = "_"
         self.previous = ''
+        self.functions = list
+        self.graph = Graph([], 1)
 
         # buttons execute connected method when pressed
 
@@ -55,9 +63,23 @@ class GUI(Ui_MainWindow):
         self.right_arrow.clicked.connect(lambda: self.arrows('right'))
         self.clear.clicked.connect(lambda: self.clear_method())
         self.equals_button.clicked.connect(lambda: self.equals_method())
-        #self.x.clicked.connect(lambda: self.add(' <span> 2 </span> '))
+        self.x.clicked.connect(lambda: self.add(''))
         self.answr.clicked.connect(lambda: self.add(self.previous))
+        self.pi.clicked.connect(lambda: self.add("π"))
 
+        self.functions = []
+        
+        self.actionView.triggered.connect(lambda: self.view())
+        self.actionFunction.triggered.connect(lambda: self.addFunction())
+
+
+    def addFunction(self):
+        self.functions.append(self.count)
+
+
+    def view(self):
+        self.graph = Graph(self.functions, 1)
+        self.graph.show()
 
     def clear_method(self):
         self.count = '_'
@@ -82,7 +104,6 @@ class GUI(Ui_MainWindow):
 
 
     def equals_method(self):
-        self.translate_for_calculator()
         calc = Calculator()
         print(self.count)
         self.count = calc.PEMDAS(self.count) + '_'
@@ -93,28 +114,19 @@ class GUI(Ui_MainWindow):
         print(self.count)
 
 
-    def translate_for_calculator(self):
-        self.count = self.count.replace('_', '')
-        self.count = self.count.replace('<sub>', ' (')
-        self.count = self.count.replace('<sup>', '^ (')
-        self.count = self.count.replace('<span>', ' (')
-        self.count = self.count.replace('</sub>', ') ')
-        self.count = self.count.replace('</sup>', ') ')
-        self.count = self.count.replace('</span>', ') ')
-
     def add_log(self):
-        self.count = self.count.replace("_", ' log <sub> _ </sub>')
+        self.count = self.count.replace("_", 'log<sub>_</sub>')
         self.equals.setText(self.count.replace('  ', ' '))
         self.equals.adjustSize()
 
     def add_exponent(self):
-        self.count = self.count.replace("_", ' <sup> _ </sup>')
+        self.count = self.count.replace("_", ' <sup>_</sup>')
         self.equals.setText(self.count.replace('  ', ' '))
         self.equals.adjustSize()
 
 
     def add_sqrt(self):
-        self.count = self.count.replace('_', ' √ <span> _ </span> ')
+        self.count = self.count.replace('_', '√<span>_</span> ')
         self.equals.setText(self.count.replace('  ', ' '))
         self.equals.adjustSize()
 
@@ -139,20 +151,24 @@ class GUI(Ui_MainWindow):
         return replace
 
 
-    def find_distance(self, underscore_index, direction='left'):
-        distance: int
-        distance_3: str
-        distance_5: str
-        distance_6: str
-        distance_7: str
-
+    def find_distance(self, underscore_index, direction='left', was_space=False):
         if direction == 'left':
+            if was_space == True:
+                underscore_index = underscore_index - 1
+            distance_1 = self.count[underscore_index - 1]
             distance_3 = self.count[underscore_index - 3: underscore_index]
             distance_5 = self.count[underscore_index - 5: underscore_index]
             distance_6 = self.count[underscore_index - 6: underscore_index]
             distance_7 = self.count[underscore_index - 7: underscore_index]
 
         elif direction == 'right':
+            if underscore_index + 1 == len(self.count):
+                return 1
+            if underscore_index + 1 > len(self.count):
+                return 0
+            if was_space == True:
+                underscore_index = underscore_index + 1
+            distance_1 = self.count[underscore_index + 1]
             distance_3 = self.count[underscore_index: underscore_index + 3]
             distance_5 = self.count[underscore_index: underscore_index + 5]
             distance_6 = self.count[underscore_index: underscore_index + 6]
@@ -166,6 +182,8 @@ class GUI(Ui_MainWindow):
             distance = 6
         elif distance_7 == '</span>':
             distance = 7
+        elif distance_1 == ' ':
+            distance = self.find_distance(underscore_index, direction, True) + 1
         else:
             distance = 1
         return distance
