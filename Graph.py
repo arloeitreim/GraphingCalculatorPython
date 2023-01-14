@@ -23,7 +23,7 @@ class Graph(QWidget):
 
         self.minor_grid = True
         self.zoom = self.__get_zoom(zoom)
-        self.scaleFactor = 0.1
+        self.scaleFactor = 0.01
 
         if type(functions) is str:
             self.functions = [functions]
@@ -55,9 +55,13 @@ class Graph(QWidget):
     def paintEvent(self, event):
         qp = QPainter()
         qp.begin(self)
+
         self.draw_graph(qp)
+
         qp.scale(self.scaleFactor, self.scaleFactor)
+
         colors = [Qt.red, Qt.blue, Qt.green, Qt.cyan, Qt.darkMagenta, Qt.yellow, Qt.magenta, Qt.darkRed]
+
         for function, color in zip(self.functions, colors):
             self.draw_function(qp, function, color)
 
@@ -98,6 +102,7 @@ class Graph(QWidget):
             horizontal_spacing = self.__get_horizontal_spacing(x_label)
             vertical_spacing = 5 - self.__get_point_size()
             x_label = str(x_label)
+
             if not x == 0:
                 qp.drawText(x + 252 - horizontal_spacing, 260 - vertical_spacing, x_label)
 
@@ -110,34 +115,45 @@ class Graph(QWidget):
                 qp.drawText(245 - horizontal_spacing, y + 253, y_label)
 
     def __get_point_size(self):
-        if self.zoom == 50:
-            return 8
-        elif self.zoom == 25:
-            return 7
-        elif self.zoom == 10:
-            return 6
-        elif self.zoom == 5:
-            return 5
-        elif self.zoom == 1:
-            return 4
+        match self.zoom:
+            case 50:
+                return 8
+
+            case 25:
+                return 7
+
+            case 10:
+                return 6
+
+            case 5:
+                return 5
+
+            case 1:
+                return 4
+
 
     def __get_horizontal_spacing(self, coordinate):
         spacing: int
         length = len(str(coordinate))
         spacing = self.__get_point_size() * 0.6 * length
-        return spacing
+
+        return int(spacing)
+
 
     def draw_grid(self, qp):
         if self.zoom >= 25:
             zoom = self.zoom
+
         else:
             zoom = 10
+
         major_grid = QColor(0, 0, 0, 50)
         minor_grid = QColor(0, 0, 0, 20)
         major_grid_pen = QPen(major_grid, 1, Qt.SolidLine)
         minor_grid_pen = QPen(minor_grid, 1, Qt.SolidLine)
 
         qp.setPen(major_grid_pen)
+
         # Draws a major horizontal lines every few minor lines
         for x in range(0, 501, zoom * 5):
             qp.drawLine(x, 0, x, 500)
@@ -149,6 +165,7 @@ class Graph(QWidget):
         # Only draws the minor lines if the zoom level is below 2
         if self.minor_grid:
             qp.setPen(minor_grid_pen)
+
             # Draws minor horizontal lines in increments of the zoom instance variable
             for x in range(0, 501, self.zoom):
                 qp.drawLine(x, 0, x, 500)
@@ -247,7 +264,7 @@ class Graph(QWidget):
 if __name__ == '__main__':
     #logging.basicConfig(level=logging.INFO)
     app = QApplication(sys.argv)
-    functions = ['x ^ x']
-    widget = Graph(functions, 1)
+    functions = ['x', 'x ^ 2', 'x ^ x', '1 ÷ x']
+    widget = Graph(functions, 0)
     widget.show()
     sys.exit(app.exec_())
