@@ -50,8 +50,8 @@ class Calculator:
         except Exception as e:
             return str(e)
 
-        
-    def translate(self, count):
+    @staticmethod
+    def translate(count):
         count = count.replace('_', '')
         components = count.split(' ')
 
@@ -85,22 +85,22 @@ class Calculator:
 
         for i, component in enumerate(components):
             match component:
-                case '√' if not components[i][0] is '√':
+                case '√' if components[i][0] != '√':
                     split_components = components[i].split('√')
                     count = count.replace(components[i], split_components[0] + ' * √ ' + split_components[1])
 
-                case 'π' if not components[i][0] == 'π':
+                case 'π' if components[i][0] != 'π':
                     split_components = components[i].split('π')
                     count = count.replace(components[i], split_components[0] + ' * π ' + split_components[1])
 
-                case 'x' if not components[i][0] == 'x':
+                case 'x' if components[i][0] != 'x':
                     split_components = components[i].split('x')
                     count = count.replace(components[i], split_components[0] + ' * x ' + split_components[1])
 
                 case 'log' if components[i] == '-log':
                     count = count.replace(components[i], '-1 * log')
 
-                case 'log' if not components[i][:3] == 'log':
+                case 'log' if components[i][:3] != 'log':
                     split_components = components[i].split('log')
                     count = count.replace(components[i], split_components[0] + ' * log ' + split_components[1])
 
