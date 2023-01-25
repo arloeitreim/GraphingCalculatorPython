@@ -8,6 +8,7 @@ import sys
 import PyQt5
 from math import isinf
 import logging
+from functools import cache
 
 
 if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
@@ -23,11 +24,16 @@ class Graph(QWidget):
         self.minor_grid = True
         self.zoom = self.__get_zoom(zoom)
         self.scaleFactor = 0.1
+        self.opacities = dict()
+
 
         if type(functions) is str:
             self.functions = [functions]
         else:
             self.functions = functions
+
+        for function in self.functions:
+            self.opacities[function] = 250
 
         self.setGeometry(500, 100, 500, 500)
         self.setWindowTitle("Graph")
@@ -71,27 +77,42 @@ class Graph(QWidget):
         qp = QPainter()
         qp.begin(self)
 
+        self.draw_axes(qp)
+        self.draw_grid(qp)
+
         qp.scale(self.scaleFactor, self.scaleFactor)
 
-        colors = [Qt.red, Qt.blue, Qt.green, Qt.cyan, Qt.darkMagenta, Qt.yellow, Qt.magenta, Qt.darkRed]
+        rgb_values = [[255, 0, 0], [0, 0, 250], [0, 250, 0], [0, 100, 100], [255, 0, 255]]
 
-        for function, color in zip(self.functions, colors):
-            self.draw_function(qp, function, color)
+        colors = dict()
+
+        for i, function in enumerate(self.functions):
+            colors[function] = QColor(*rgb_values[i], self.opacities[function])
+
+        for function in self.functions:
+            self.draw_function(qp, function, colors[function])
 
         # Resets the scale
         qp.scale(1 / self.scaleFactor, 1 / self.scaleFactor)
 
-        self.draw_graph(qp)
+        self.draw_axes_labels(qp)
 
         qp.end()
 
-
-    def draw_graph(self, qp):
-        self.draw_axes(qp)
-        self.draw_grid(qp)
-
-
     def draw_axes(self, qp):
+
+        horizontal_spacing: int
+        vertical_spacing: int
+
+        axes = QColor(0, 0, 0, 150)
+        axes_pen = QPen(axes, 2, Qt.SolidLine)
+
+        qp.setPen(axes_pen)
+        qp.drawLine(0, 250, 500, 250)
+        qp.drawLine(250, 0, 250, 500)
+
+
+    def draw_axes_labels(self, qp):
         # if the class instance zoom is not greater than 25, set it to 10
         # this makes sure the labels don't get too clumped together when the graph is very zoomed out
         if self.zoom >= 25:
@@ -99,13 +120,9 @@ class Graph(QWidget):
         else:
             zoom = 10
 
-        horizontal_spacing: int
-        vertical_spacing: int
         axes = QColor(0, 0, 0, 150)
         axes_pen = QPen(axes, 2, Qt.SolidLine)
         qp.setPen(axes_pen)
-        qp.drawLine(0, 250, 500, 250)
-        qp.drawLine(250, 0, 250, 500)
 
         font = QFont()
         font.setBold(True)
@@ -200,22 +217,22 @@ class Graph(QWidget):
             for y in range(0, 501, self.zoom):
                 qp.drawLine(0, y, 500, y)
 
-
     def draw_function(self, qp, function, color):
         pen = QPen(color, 7, Qt.SolidLine, Qt.RoundCap)
         pen.setJoinStyle(Qt.RoundJoin)
         pen.setCosmetic(True)
         qp.setPen(pen)
+        #qp.setCompositionMode(QPainter.CompositionMode_DestinationOut)
         qp.setRenderHint(QPainter.SmoothPixmapTransform, True)
         qp.setRenderHint(QPainter.Antialiasing, True)
 
-        lines, points = self.get_lines(function)
+        lines, points = self.get_lines(function, self.zoom)
 
         qp.drawPoints(points)
         qp.drawLines(lines)
 
-
-    def get_lines(self, function: str):
+    @cache
+    def get_lines(self, function: str, zoom):
         continuous = False
         point1: QPointF
         point2: QPointF
@@ -264,6 +281,8 @@ class Graph(QWidget):
                 calculator.PEMDAS
                 (function.replace('x', ' ( ' + str(x) + ' ) ')))
 
+            logging.info(f'x: {x} \n y: {y}')
+
             # checks if y is a complex number or infinite
             self.check_complex(y)
             #self.check_infinity(y)
@@ -285,6 +304,10 @@ class Graph(QWidget):
 
         return get_point_inner
 
+    def change_opacity(self, function, opacity_level):
+        self.opacities[function] = opacity_level
+        self.update()
+
 
     def check_complex(self, y_float):
         if 'j' in str(y_float):
@@ -302,7 +325,7 @@ class Graph(QWidget):
 if __name__ == '__main__':
     #logging.basicConfig(level=logging.INFO)
     app = QApplication(sys.argv)
-    functions = ['x', 'x ^ 2', 'x ^ x', '1 ÷ x']
+    functions = ['√ ( x ) - 5']
     graph = Graph(functions, 1)
     graph.show()
 
