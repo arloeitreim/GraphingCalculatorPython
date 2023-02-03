@@ -8,9 +8,9 @@ from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import QPainter, QPen
 from PyQt5.QtCore import Qt
 import sys
-from Graph import Graph
+from GraphGUI import GraphGUI
 
-# converting .ui to .py: pyuic5: pyuic5 -x QtDesignerCode.ui -o QtDesignerCode.py
+# converting .ui to .py:
 # opening designer: pyqt5-tools designer
 
 # Scales GUI to resolution
@@ -34,7 +34,9 @@ class GUI(Ui_MainWindow):
         self.previous = ''
         self.functions: list[str] = []
         self.remove_function_actions = dict()
-        self.graph = Graph([], 1)
+        self.graph = GraphGUI([])
+
+        MainWindow.move(300, 100)
 
         # buttons execute connected method when pressed
 
@@ -52,7 +54,7 @@ class GUI(Ui_MainWindow):
         self.del_button.clicked.connect(lambda: self.delete())
         self.addition.clicked.connect(lambda: self.add(" + "))
         self.subtraction.clicked.connect(lambda: self.add(" - "))
-        self.multiplication.clicked.connect(lambda: self.add(" * "))
+        self.multiplication.clicked.connect(lambda: self.add(" × "))
         self.division.clicked.connect(lambda: self.add(" ÷ "))
         self.power.clicked.connect(lambda: self.add_exponent())
         self.root.clicked.connect(lambda: self.add_sqrt())
@@ -67,9 +69,10 @@ class GUI(Ui_MainWindow):
         self.x.clicked.connect(lambda: self.add('x'))
         self.answr.clicked.connect(lambda: self.add(self.previous))
         self.pi.clicked.connect(lambda: self.add("π"))
+        self.z.clicked.connect(lambda: self.add('z'))
         
         self.actionView.triggered.connect(lambda: self.view())
-        self.actionFunction.triggered.connect(lambda: self.addFunction())
+        self.actionAdd_Function.triggered.connect(lambda: self.addFunction())
 
         self.menu_remove_function = QtWidgets.QMenu(self.menuGraph)
         self.menuGraph.addAction(self.menu_remove_function.menuAction())
@@ -83,17 +86,19 @@ class GUI(Ui_MainWindow):
 
 
     def addFunction(self):
-        count = Calculator.translate(self.count)
+        if len(self.functions) == 4:
+            exit()
+        without_html = Calculator.translate(self.count)
+        with_html = self.count.replace('_', '')
+        self.functions.append(with_html)
 
-        self.functions.append(count)
+        self.remove_function_actions[without_html] = QtWidgets.QAction(self.menu_remove_function)
+        self.remove_function_actions[without_html].triggered.connect(lambda: self.remove_function(without_html))
 
-        self.remove_function_actions[count] = QtWidgets.QAction(self.menu_remove_function)
-        self.remove_function_actions[count].triggered.connect(lambda: self.remove_function(count))
-
-        self.menu_remove_function.addAction(self.remove_function_actions[count])
+        self.menu_remove_function.addAction(self.remove_function_actions[without_html])
 
         _translate = QtCore.QCoreApplication.translate
-        self.remove_function_actions[count].setText(_translate("MainWindow", count))
+        self.remove_function_actions[without_html].setText(_translate("MainWindow", without_html))
 
     def remove_function(self, function):
         position_of_function = self.functions.index(function)
@@ -103,7 +108,7 @@ class GUI(Ui_MainWindow):
 
 
     def view(self):
-        self.graph = Graph(self.functions, 1)
+        self.graph = GraphGUI(self.functions)
         self.graph.show()
 
 

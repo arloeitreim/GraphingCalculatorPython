@@ -87,7 +87,7 @@ class GraphGUI(QWidget):
 			without_html = without_html.replace(' (', '')
 			without_html = without_html.replace(') ', '')
 
-			font.setPointSizeF(16 - (len(without_html) / 4))
+			font.setPointSizeF(14 - (len(without_html) / 4))
 
 			function_labels[function] = QLabel(function, self)
 			function_labels[function].setFont(font)
@@ -106,10 +106,6 @@ class GraphGUI(QWidget):
 			self.sliders[function].valueChanged[int].connect(change_opacity)
 
 	def __init__Graph(self):
-		#new_functions = self.functions
-		#for i, function in enumerate(self.functions):
-			#if 'z' in function:
-				#new_functions[i] = function.replace('z', self.old_z_value)
 		self.graph = Graph(self.functions, 1)
 		self.graph.setGeometry(500, 100, 500, 500)
 		self.graph.setFixedSize(500, 500)
@@ -128,12 +124,12 @@ class GraphGUI(QWidget):
 		self.transparency_action.triggered.connect(lambda: self.change_header_and_connection('Transparency', self.change_opacity_closed))
 		self.z_axis_slider.valueChanged[int].connect(self.change_z_axis)
 
-	def change_z_axis(self, value):
+	def change_z_axis(self,   value):
 		value = str((value * -1 + 250) / 100)
 		self.graph.change_z_axis(value)
 
-	def make_transparency_visible(self):
-		self.transparency
+	#def make_transparency_visible(self):
+		#self.transparency
 
 	def change_opacity_closed(self, function):
 		def change_opacity(value):

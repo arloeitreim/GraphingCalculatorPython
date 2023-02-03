@@ -64,13 +64,14 @@ class Calculator:
         operator_list2 = ['+', '-', '÷', '*', '^', '√', '', ' ', '  ',
                           'log' '<sub>', '</sub>', '<sup>', '</sup>','<span>', '</span>', ')']
 
-
+        count = count.replace('z', ' ( 1 ) ')
         count = count.replace('<sub>', ' ( ')
         count = count.replace('<sup>', '^ ( ')
         count = count.replace('<span>', ' ( ')
         count = count.replace('</sub>', ' ) ')
         count = count.replace('</sup>', ' ) ')
         count = count.replace('</span>', ' ) ')
+        count = count.replace('×', '*')
         count = count.replace('π', str(math.pi))
         count = count.replace('  ', ' ')
 
@@ -236,7 +237,7 @@ class Calculator:
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO  )
+    #logging.basicConfig(level=logging.INFO  )
     calc = Calculator()
     res = calc.PEMDAS('-5.05 ^ -5.05')
     print(f'<{res}>')

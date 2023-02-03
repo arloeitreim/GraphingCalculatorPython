@@ -679,6 +679,36 @@
      <bool>true</bool>
     </property>
    </widget>
+   <widget class="QPushButton" name="z">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>200</y>
+      <width>51</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>9</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="mouseTracking">
+     <bool>false</bool>
+    </property>
+    <property name="text">
+     <string>z</string>
+    </property>
+    <property name="shortcut">
+     <string>Z</string>
+    </property>
+    <property name="autoDefault">
+     <bool>true</bool>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -689,7 +719,7 @@
      <height>22</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuCalculate">
+   <widget class="QMenu" name="menuTools">
     <property name="title">
      <string>Tools</string>
     </property>
@@ -698,11 +728,12 @@
       <string>Graph</string>
      </property>
      <addaction name="actionView"/>
-     <addaction name="actionFunction"/>
+     <addaction name="separator"/>
+     <addaction name="actionAdd_Function"/>
     </widget>
     <addaction name="menuGraph"/>
    </widget>
-   <addaction name="menuCalculate"/>
+   <addaction name="menuTools"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionView">
@@ -710,9 +741,14 @@
     <string>View</string>
    </property>
   </action>
-  <action name="actionFunction">
+  <action name="actionAdd_Function">
    <property name="text">
     <string>Add Function</string>
+   </property>
+  </action>
+  <action name="actionRemove_Function">
+   <property name="text">
+    <string>Remove Function</string>
    </property>
   </action>
  </widget>

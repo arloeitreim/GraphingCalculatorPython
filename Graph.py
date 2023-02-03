@@ -19,13 +19,13 @@ if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
 	PyQt5.QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
 
 class Graph(QWidget):
-    def __init__(self, functions, zoom, z='0'):
+    def __init__(self, functions=[], zoom=1, z='0', scale_factor=0.1):
         super().__init__()
 
         self.z = '0'
         self.minor_grid = True
         self.zoom = self.__get_zoom(zoom)
-        self.scaleFactor = 1
+        self.scaleFactor = scale_factor
         self.opacities = dict()
 
         if type(functions) is str:
@@ -220,7 +220,6 @@ class Graph(QWidget):
             qp.setPen(pen)
             qp.setRenderHint(QPainter.SmoothPixmapTransform, True)
             qp.setRenderHint(QPainter.Antialiasing, True)
-            print(timeit.timeit(stmt='self.get_lines(function, self.zoom, z)', globals=globals(), timer=default_timer, number=5))
             lines, points = self.get_lines(function, self.zoom, z)
 
             qp.drawPoints(points)
