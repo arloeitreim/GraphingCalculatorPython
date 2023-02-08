@@ -9,6 +9,7 @@ from PyQt5.QtGui import QPainter, QPen
 from PyQt5.QtCore import Qt
 import sys
 from GraphGUI import GraphGUI
+from RegressionGUI import RegressionGUI
 
 # converting .ui to .py:
 # opening designer: pyqt5-tools designer
@@ -27,14 +28,15 @@ if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
 # Everything else was manually coded
 class GUI(Ui_MainWindow):
     def setupUi(self, MainWindow):
-
         super().setupUi(MainWindow)
+        MainWindow.setWindowTitle('Calculator')
 
         self.count = "_"
         self.previous = ''
         self.functions: list[str] = []
         self.remove_function_actions = dict()
         self.graph = GraphGUI([])
+        self.regression = RegressionGUI()
 
         MainWindow.move(300, 100)
 
@@ -71,19 +73,22 @@ class GUI(Ui_MainWindow):
         self.pi.clicked.connect(lambda: self.add("π"))
         self.z.clicked.connect(lambda: self.add('z'))
         
-        self.actionView.triggered.connect(lambda: self.view())
+        self.actionView_2.triggered.connect(lambda: self.view())
         self.actionAdd_Function.triggered.connect(lambda: self.addFunction())
 
         self.menu_remove_function = QtWidgets.QMenu(self.menuGraph)
         self.menuGraph.addAction(self.menu_remove_function.menuAction())
 
+        self.action_regression = QtWidgets.QAction(MainWindow)
+        self.menubar.addAction(self.action_regression)
+        self.action_regression.triggered.connect(lambda: self.regression.show())
         self.name_actions()
 
 
     def name_actions(self):
         _translate = QtCore.QCoreApplication.translate
         self.menu_remove_function.setTitle(_translate("MainWindow", 'Remove Function'))
-
+        self.action_regression.setText('Regression')
 
     def addFunction(self):
         if len(self.functions) == 4:

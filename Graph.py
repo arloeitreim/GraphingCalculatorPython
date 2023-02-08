@@ -21,6 +21,7 @@ if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
 class Graph(QWidget):
     def __init__(self, functions=[], zoom=1, z='0', scale_factor=0.1):
         super().__init__()
+        self.setWindowTitle('Graph')
 
         self.z = '0'
         self.minor_grid = True
@@ -269,8 +270,8 @@ class Graph(QWidget):
             y: float
 
             # adjusts x for the scale and zoom of the graph
-            x = (x * self.scaleFactor
-                 / self.zoom)
+            x = round(x * self.scaleFactor
+                 / self.zoom, 1)
 
             # Calculates y-value
             y = float(
@@ -306,6 +307,7 @@ class Graph(QWidget):
 
     def change_z_axis(self, value):
         self.z = value
+        self.scaleFactor = 1
         self.update()
 
     def check_complex(self, y_float):

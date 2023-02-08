@@ -7,7 +7,6 @@ import sys
 import numpy as np
 import PyQt5
 import math
-import logging
 
 if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
     PyQt5.QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
@@ -23,11 +22,10 @@ def makeQPoint(coordinates):
 class Regression(Graph):
     def __init__(self):
         super().__init__([], 1, scale_factor=1)
+        self.setWindowTitle('Regression')
         self.mode = 'exponential'
         self.setMouseTracking(True)
         self.points = []
-
-    # self.mousePressEvent().triggered
 
     def paintEvent(self, event):
         qp = QPainter()
@@ -82,10 +80,12 @@ class Regression(Graph):
                         del self.points[index]
                     except ValueError:
                         pass
-        to_delete = []
+
         if len(self.points) > 1:
             if self.mode == 'exponential':
                 self.exponential_regression()
+            if self.mode == 'linear':
+                self.linear_regression()
 
         self.update()
 
@@ -116,14 +116,10 @@ class Regression(Graph):
         equation = f'{m: .5}x + {b: .5}'
         equation = equation.replace('  ', ' ')
 
-        #print(f"x: {x_list}")
-        #print(f"y: {y_list}")
-        #print(f"x ^ 2: {x_squared_list}")
-        #print(f"x * y: {x_times_y_list}")
         print(equation)
 
-        if len(self.points) > 2:
-            del self.functions[len(self.functions) - 1]
+        # clears function list to prevent overlapping functions
+        self.functions = []
 
         self.functions.append(equation)
         self.opacities[equation] = 250
@@ -177,17 +173,32 @@ class Regression(Graph):
 
         print(equation)
 
-        if len(self.points) > 2:
-            del self.functions[len(self.functions) - 1]
+        # clears function list to prevent overlapping functions
+        self.functions = []
 
         self.functions.append(equation)
         self.opacities[equation] = 250
 
         self.update()
 
+    def change_mode(self, mode):
+        self.mode = mode
+        if len(self.points) > 1:
+            self.functions = []
+            if self.mode == 'exponential':
+                self.exponential_regression()
+            if self.mode == 'linear':
+                self.linear_regression()
+        self.update()
+
+    def clear_points(self):
+        self.points = []
+        self.functions = []
+        self.update()
+
+
 
 if __name__ == '__main__':
-    #logging.basicConfig(level=10)
     app = QApplication(sys.argv)
     regression = Regression()
     regression.show()

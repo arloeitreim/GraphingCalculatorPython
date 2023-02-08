@@ -719,21 +719,14 @@
      <height>22</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuTools">
+   <widget class="QMenu" name="menuGraph">
     <property name="title">
-     <string>Tools</string>
+     <string>Graph</string>
     </property>
-    <widget class="QMenu" name="menuGraph">
-     <property name="title">
-      <string>Graph</string>
-     </property>
-     <addaction name="actionView"/>
-     <addaction name="separator"/>
-     <addaction name="actionAdd_Function"/>
-    </widget>
-    <addaction name="menuGraph"/>
+    <addaction name="actionView_2"/>
+    <addaction name="actionAdd_Function"/>
    </widget>
-   <addaction name="menuTools"/>
+   <addaction name="menuGraph"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionView">
@@ -741,7 +734,7 @@
     <string>View</string>
    </property>
   </action>
-  <action name="actionAdd_Function">
+  <action name="action">
    <property name="text">
     <string>Add Function</string>
    </property>
@@ -749,6 +742,21 @@
   <action name="actionRemove_Function">
    <property name="text">
     <string>Remove Function</string>
+   </property>
+  </action>
+  <action name="actionAdd_Function_2">
+   <property name="text">
+    <string>Add Function</string>
+   </property>
+  </action>
+  <action name="actionView_2">
+   <property name="text">
+    <string>View</string>
+   </property>
+  </action>
+  <action name="actionAdd_Function">
+   <property name="text">
+    <string>Add Function</string>
    </property>
   </action>
  </widget>

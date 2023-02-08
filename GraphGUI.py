@@ -19,7 +19,8 @@ if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
 class GraphGUI(QWidget):
 	def __init__(self, functions):
 		super().__init__()
-		self.setGeometry(300, 100, 865, 540)
+		self.setWindowTitle('Graph')
+		self.setGeometry(300, 100, 865, 515)
 		self.setObjectName('GraphGUI')
 		self.functions = functions
 		self.sliders = dict()
@@ -59,14 +60,6 @@ class GraphGUI(QWidget):
 		self.header.adjustSize()
 		self.header.move(647, 150)
 
-		self.menubar = QtWidgets.QMenuBar(self)
-		self.menubar.setGeometry(QtCore.QRect(0, 0, 900, 22))
-		self.menubar.setObjectName("menubar")
-
-		self.transparency_action = QtWidgets.QAction(self)
-		self.transparency_action.setText('Transparency')
-		self.menubar.addAction(self.transparency_action)
-
 		self.z_axis_label = QLabel('Z-Axis', self)
 		self.z_axis_label.move(745, 30)
 		self.z_axis_label.setFont(header)
@@ -79,9 +72,12 @@ class GraphGUI(QWidget):
 		function_labels = dict()
 		self.sliders = dict()
 
+		horizontal_shift = 0
+		vertical_shift = 0
 		for i, function in enumerate(self.functions):
-			if i > 4:
-				break
+			if i > 3:
+				horizontal_shift = 150
+				vertical_shift = -320
 
 			without_html = Calculator.translate(function)
 			without_html = without_html.replace(' (', '')
@@ -92,10 +88,10 @@ class GraphGUI(QWidget):
 			function_labels[function] = QLabel(function, self)
 			function_labels[function].setFont(font)
 			function_labels[function].setWordWrap(True)
-			function_labels[function].move(575, 190 + (i * 80))
+			function_labels[function].move(575 + horizontal_shift, 190 + vertical_shift + (i * 80))
 
 			self.sliders[function] = QSlider(Qt.Horizontal, self)
-			self.sliders[function].setGeometry(560, 230 + (i * 80), 100, 10)
+			self.sliders[function].setGeometry(560 + horizontal_shift, 230 + vertical_shift + (i * 80), 100, 10)
 			self.sliders[function].setSingleStep(100)
 
 			change_opacity = self.change_opacity_closed(function)
@@ -121,7 +117,6 @@ class GraphGUI(QWidget):
 	def connect_buttons(self):
 		self.increase.clicked.connect(lambda: self.increase_zoom())
 		self.decrease.clicked.connect(lambda: self.decrease_zoom())
-		self.transparency_action.triggered.connect(lambda: self.change_header_and_connection('Transparency', self.change_opacity_closed))
 		self.z_axis_slider.valueChanged[int].connect(self.change_z_axis)
 
 	def change_z_axis(self,   value):
@@ -149,9 +144,10 @@ class GraphGUI(QWidget):
 
 if __name__ == '__main__':
 	app = QtWidgets.QApplication([])
-	#functions = ['2 ^ x', 'x ^ 2 - 0.2', 'x <sup> 3 </sup>', '√ x']
-	#functions = ['x * z ^ 3 - z * x ^ 3']
-	functions = ['-1 ÷ ( x ^ 2 + z ^ 2 ) ', 'x * z ^ 3 - z * x ^ 3', ' ( x ^ 4 ) ÷ ( z ^ 3 ) ']
+	# functions = ['2 ^ x', 'x ^ 2 - 0.2', 'x <sup> 3 </sup>', '√ x']
+	# functions = ['x * z ^ 3 - z * x ^ 3']
+	functions = ['-1 ÷ ( x ^ 2 + z ^ 2 ) ', 'x * z ^ 3 - z * x ^ 3', ' ( x ^ 4 ) ÷ ( z ^ 3 ) ', 'x + z', '3']
+	# '3x', '2 ^ x']
 	graph_GUI = GraphGUI(functions)
 	graph_GUI.show()
 	sys.exit(app.exec_())
