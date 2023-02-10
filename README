@@ -1,0 +1,21 @@
+How to run this program:
+open the folder titled "GUI"
+open the file titled "GUI" with the type "Applicaton"
+
+Description: 
+This program is a calculator with graphing and regression capabilities.
+Features:
+- All basic operators, including log and sqrt
+- Creating and viewing functions on a graph
+- Different zoom levels for the graph
+- Adjustable transparency levels for individual functions
+- Adjustable z-axis slider that changes the value of the "z" variable
+- linear and exponential regression
+
+Shortcuts:
+most shortcuts allign with the character you would be clicking
+for example, the shortcut for "+" is also "+"
+however, some are not as self explanatory:
+- sqrt = alt + /
+- log = alt + l
+- (+/-) = alt + -
